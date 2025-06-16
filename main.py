@@ -1,14 +1,20 @@
 import os
 import telebot
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
 
-TOKEN = os.environ.get("BOT_TOKEN")
+# Obtener token del entorno
+TOKEN = os.environ.get("TOKEN")
+if not TOKEN:
+    raise ValueError("❌ No se encontró la variable de entorno 'TOKEN'. Asegurate de definirla en Render.")
+
 bot = telebot.TeleBot(TOKEN)
 
+# IDs reales (asegurate de usar el ID correcto del grupo como entero negativo)
 CANAL_ID = "@PoesíaErótica"
-GRUPO_ID = -1000000000000  # Reemplazar por el ID real del grupo (como entero)
+GRUPO_ID = -1000000000000  # ← Reemplazar por el ID numérico real del grupo
 
+# Seguimiento de usos por usuario
 uso_diario = defaultdict(lambda: {"count": 0, "last_used": datetime.now().date()})
 
 def puede_usar(user_id):
@@ -40,7 +46,7 @@ def anon_mensaje(message):
         return
 
     if message.content_type == "text":
-        if "http://" in message.text or "https://" in message.text or "t.me/" in message.text:
+        if any(x in message.text for x in ["http://", "https://", "t.me/"]):
             bot.reply_to(message, "🚫 No se permiten enlaces en los mensajes.")
             return
         if len(message.text) > 1000:
